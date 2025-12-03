@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require('express'); 
 const dotenv = require('dotenv');
 dotenv.config(); // Load env vars immediately
 const cors = require('cors');
@@ -8,7 +8,24 @@ const { scheduleReminders } = require('./services/notificationService');
 
 const app = express();
 
-app.use(cors());
+// CORS configuration
+const allowedOrigins = [
+  'http://localhost:5173',               // local dev frontend
+  'https://client-nu-inky.vercel.app'   // deployed frontend
+];
+
+app.use(cors({
+  origin: function(origin, callback){
+    if(!origin) return callback(null, true); // allow non-browser requests like Postman
+    if(allowedOrigins.indexOf(origin) === -1){
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true
+}));
+
 app.use(express.json());
 
 // Log all requests
